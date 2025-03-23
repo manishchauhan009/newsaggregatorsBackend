@@ -3,7 +3,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const fileupload = require("express-fileupload");
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(",") : [];
 
 module.exports = (app) => {
   app.use(express.json());
@@ -22,6 +22,7 @@ module.exports = (app) => {
         if (!origin || allowedOrigins.includes(origin)) {
           callback(null, true);
         } else {
+          console.error(`Blocked CORS request from: ${origin}`); // Log blocked requests
           callback(new Error("Not allowed by CORS"));
         }
       },
@@ -31,5 +32,6 @@ module.exports = (app) => {
     })
   );
 
+  // Explicitly handle preflight requests
   app.options("*", cors());
 };
