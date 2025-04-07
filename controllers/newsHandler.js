@@ -126,7 +126,6 @@ const newsdataall = async (req, res) => {
 
 const categoryData = async (req, res) => {
   const {category} = req.body;
-  console.log(category);
   try {
     const news = await News.find({ Approved: true, Group: category }).sort({ createdAt: -1 });
     res.json(news);
