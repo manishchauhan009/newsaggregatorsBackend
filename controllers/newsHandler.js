@@ -1,5 +1,5 @@
 const News = require("../models/newsDataSchema");
-const user=require("../models/newsUserSchema")
+const user = require("../models/newsUserSchema")
 const cloudinary = require("cloudinary").v2;
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
@@ -34,7 +34,6 @@ const createNews = async (req, res) => {
   try {
     const response = await uploadToCloudinary(file, "newsMedia");
     newsData.imgUrl = response.url;
-    console.log(response);
     const news = await new News(newsData);
     news.save();
     return res
@@ -53,7 +52,6 @@ const createNews = async (req, res) => {
 const adminNews = async (req, res) => {
   try {
     const news = await News.find({ Approved: false });
-    console.log(news);
     return res.send(news || []);
   } catch (error) {
     console.error("Error fetching news data:", error);
@@ -82,7 +80,6 @@ const adminApprove = async (req, res) => {
 
 const adminDeny = async (req, res) => {
   const { id } = req.body;
-  console.log(id);
 
   try {
     const article = await News.findById(id);
@@ -100,9 +97,8 @@ const adminDeny = async (req, res) => {
 
 
 const newsData = async (req, res) => {
-  const token= req.headers['authorization']?.split(" ")[1]
-  const user=jwt.verify(token,process.env.JWT_SECRET)
-  console.log(user)
+  const token = req.headers['authorization']?.split(" ")[1]
+  const user = jwt.verify(token, process.env.JWT_SECRET)
 
 
   try {
@@ -125,7 +121,7 @@ const newsdataall = async (req, res) => {
 
 
 const categoryData = async (req, res) => {
-  const {category} = req.body;
+  const { category } = req.body;
   try {
     const news = await News.find({ Approved: true, Group: category }).sort({ createdAt: -1 });
     res.json(news);
@@ -136,28 +132,25 @@ const categoryData = async (req, res) => {
 }
 
 const verifylike = async (req, res) => {
-  const newsid=req.body
-  if (newsid.currentemail===""){
-    console.log("Not signed in")
+  const newsid = req.body
+  if (newsid.currentemail === "") {
     res.send("0")
 
   }
-  else{
-    
-    const news1=await user.find({ Email: newsid.currentemail })
-    // console.log(news1[0].newsItems)
-  
-    if (news1[0].newsItems.includes(newsid.newsid)){
-      console.log("already existss")
+  else {
+
+    const news1 = await user.find({ Email: newsid.currentemail })
+
+    if (news1[0].newsItems.includes(newsid.newsid)) {
       res.send("0")
       return
     }
-  
+
     // if (!news1[currentemail].includes(newsid.newsid)){
-  
+
     // }
-    const news=await user.updateOne({Email:newsid.currentemail},{ $push: { newsItems: newsid.newsid } })
-  
+    const news = await user.updateOne({ Email: newsid.currentemail }, { $push: { newsItems: newsid.newsid } })
+
     const result = await News.updateOne(
       { _id: newsid.newsid }, // Filter by document ID
       { $inc: { Like: 1 } } // Set the `Like` field to 1
@@ -165,40 +158,35 @@ const verifylike = async (req, res) => {
     res.send("1")
 
   }
- 
+
 };
 
 
 
 const reported = async (req, res) => {
-  const newsid=req.body
-  if (newsid.currentemail===""){
-    console.log("Not signed in")
+  const newsid = req.body
+  if (newsid.currentemail === "") {
     res.send("0")
 
   }
-  else{
-    
-    const news2=await user.find({ Email: newsid.currentemail })
-  
-    if (news2[0].newsItems1.includes(newsid.newsid)){
-      console.log("already existss")
+  else {
+
+    const news2 = await user.find({ Email: newsid.currentemail })
+
+    if (news2[0].newsItems1.includes(newsid.newsid)) {
       res.send("0")
       return
 
     }
-  
-    // if (!news1[currentemail].includes(newsid.newsid)){
-  
-    // }
-    const news=await user.updateOne({Email:newsid.currentemail},{ $push: { newsItems1: newsid.newsid } })
+
+
+    const news = await user.updateOne({ Email: newsid.currentemail }, { $push: { newsItems1: newsid.newsid } })
 
     let defaulter = await News.findOne({ _id: Object(newsid.newsid) });
-    if (defaulter.Reported>=1){
+    if (defaulter.Reported >= 1) {
       await News.findByIdAndDelete(newsid.newsid)
-      console.log("deleted",defaulter.Reported)
     }
-    else{
+    else {
       const result = await News.updateOne(
         { _id: newsid.newsid }, // Filter by document ID
         { $inc: { Reported: 1 } } // Set the `Like` field to 1
@@ -206,17 +194,13 @@ const reported = async (req, res) => {
       res.send("1")
 
     }
-  
-    
-
   }
- 
+
 };
 
-const deletepost=async(req,res)=>{
-  const newsid=req.body
-  const news3=await News.findByIdAndDelete(newsid.newsid);
-  console.log("deleted")
+const deletepost = async (req, res) => {
+  const newsid = req.body
+  const news3 = await News.findByIdAndDelete(newsid.newsid);
 }
 
-module.exports = { createNews, adminNews, adminApprove, adminDeny, newsData, categoryData,newsdataall,verifylike,reported,deletepost };
+module.exports = { createNews, adminNews, adminApprove, adminDeny, newsData, categoryData, newsdataall, verifylike, reported, deletepost };

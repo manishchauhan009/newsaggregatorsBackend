@@ -18,7 +18,6 @@ const register = async (req, res) => {
       
       const existingUser = await User.findOne({ Email: userData.Email });
       if (existingUser) {
-        console.log("exist")
         return res
           .status(400)
           .json({ success: false, message: "User already exists" });
@@ -30,7 +29,6 @@ const register = async (req, res) => {
         return res.status(200).json({ success: true, message: "User Registered Successfully" });
       }
     } else {
-      console.log("Invalid email")
       return res.status(403).json({ success: false, message: "Invalid Email" });
     }
   } catch (error) {
